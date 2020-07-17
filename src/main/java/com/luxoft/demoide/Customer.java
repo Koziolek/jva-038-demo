@@ -3,9 +3,10 @@ package com.luxoft.demoide;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 @Entity
-class Customer {
+public class Customer {
 
     @Id
     @GeneratedValue
@@ -13,11 +14,15 @@ class Customer {
 
     private String name;
 
+    @ManyToOne
+    private Company company;
+
     public Customer() {
     }
 
-    public Customer(String name) {
+    public Customer(String name, Company company) {
         this.name = name;
+        this.company = company;
     }
 
     public long getId() {
@@ -34,5 +39,18 @@ class Customer {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+
+    public Company getCompany() {
+        return company;
+    }
+
+    public void setCompany(Company company) {
+        this.company = company;
+    }
+
+    public Customer applyChangeset(Customer changeset) {
+         return this;
     }
 }
