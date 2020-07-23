@@ -1,9 +1,11 @@
 package com.luxoft.demoide;
 
 import com.luxoft.demoide.auth.LdapProvider;
+import com.luxoft.demoide.infra.MyLifecycle;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
@@ -21,10 +23,12 @@ class AppConfiguration {
     public CommandLineRunner demoData(CustomerRepository customerRepository,
                                       CompanyRepository companyRepository,
                                       @Qualifier(value = "company") String company,
-                                      @Value(value = "${info.build.version}") String version) {
+                                      @Value(value = "${info.build.version}") String version,
+                                      MyLifecycle lifecycle) {
         return args -> {
             System.out.println("New customers");
             System.out.println(company);
+            System.out.println(lifecycle);
             Company luxoft = new Company(company);
             companyRepository.save(luxoft);
             customerRepository.save(new Customer("Jan", luxoft));

@@ -8,8 +8,9 @@ import java.util.Collections;
 import java.util.List;
 
 @Primary
-@Component("dummyMailingService")
+@Component(MailingService.dummy)
 class MailingServiceDummyImpl implements MailingService {
+
     @Override
     public Customer register(Customer customer) {
         return customer;

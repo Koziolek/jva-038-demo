@@ -7,11 +7,11 @@ import com.luxoft.demoide.auth.LdapProvider;
 import com.luxoft.demoide.auth.LdapProviderProvider;
 import com.luxoft.demoide.mailing.MailingService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Map;
+import java.util.function.Supplier;
 
 @Component
 class AccountService {
@@ -20,16 +20,20 @@ class AccountService {
 
     private final LdapProvider ldapProvider;
 
+    private final ApplicationContext context;
+
     @Autowired(required = false)
     private MailingService mailingService;
 
     public AccountService(CustomerRepository repository,
                           LdapProviderProvider<LdapProvider> ldapProvider,
-                          Map<String, LdapProvider> providers) {
+                          @MyScope List<LdapProvider> providers,
+                          ApplicationContext context) {
         this.repository = repository;
         this.ldapProvider = ldapProvider.get();
+        this.context = context;
         System.out.println(providers.getClass());
-        providers.keySet().forEach(System.out::println);
+        providers.forEach(System.out::println);
     }
 
     public Customer addNewCustomer(String name) {
@@ -37,7 +41,9 @@ class AccountService {
             throw new IllegalStateException("No Account");
         Customer customer = repository.save(new Customer(name, null));
         if (mailingService != null) {
-            mailingService.register(customer);
+            new TransactionSupport().doInTransaction(()->
+                 mailingService.register(customer)
+            );
         }
         return customer;
     }
@@ -50,9 +56,15 @@ class AccountService {
 
     public void giveBonus(long id) {
         //...
-        repository.getOne(id);
-        //...
+        Customer customer = repository.getOne(id);
+        AccountService self = context.getBean(this.getClass());
+
+        self.calculateBonus(customer);
         return;
+    }
+
+    private void calculateBonus(Customer customer) {
+        System.out.println("Calculate");
     }
 
     public boolean verify(long id) {
@@ -60,4 +72,12 @@ class AccountService {
         return ldapProvider.hasAccount(customer.getName());
     }
 
+}
+
+
+class TransactionSupport {
+
+    public <T> T doInTransaction(Supplier<T> f) {
+        return f.get();
+    }
 }

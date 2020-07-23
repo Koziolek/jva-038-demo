@@ -6,6 +6,9 @@ import java.util.List;
 
 public interface MailingService {
 
+    String dummy = "dummyMailingService";
+    String external = "externalMailingService";
+
     class Result{
         Customer customer;
         boolean ok;

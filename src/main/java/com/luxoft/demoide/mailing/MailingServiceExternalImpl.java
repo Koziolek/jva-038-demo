@@ -5,7 +5,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Component
+@Component(MailingService.external)
+
 class MailingServiceExternalImpl implements MailingService{
     @Override
     public Customer register(Customer customer) {
